@@ -1,0 +1,142 @@
+diff --git a/llvm/include/llvm/IR/OptBisect.h b/llvm/include/llvm/IR/OptBisect.h
+index 507d415d5e11..1540078f2c06 100644
+--- a/llvm/include/llvm/IR/OptBisect.h
++++ b/llvm/include/llvm/IR/OptBisect.h
+@@ -16,6 +16,7 @@
+
+ #include "llvm/ADT/StringRef.h"
+ #include <limits>
++#include <set>
+
+ namespace llvm {
+
+@@ -81,6 +82,44 @@ private:
+   int LastBisectNum = 0;
+ };
+
++/// This class implements a mechanism to disable passes and individual
++/// optimizations at compile time based on a command line option
++/// (-opt-disable) in order to disable a set of optimizations.
++class OptDisable : public OptPassGate {
++public:
++  /// Default constructor. Initializes the state to "disabled". The disabling
++  /// will be enabled by the cl::opt call-back when the command line option
++  /// is processed.
++  /// Clients should not instantiate this class directly.  All access should go
++  /// through LLVMContext.
++  OptDisable() = default;
++
++  virtual ~OptDisable() = default;
++
++  /// Checks the bisect limit to determine if the specified pass should run.
++  ///
++  /// This forwards to checkPass().
++  bool shouldRunPass(const StringRef PassName,
++                     StringRef IRDescription) override;
++
++
++  /// isEnabled() should return true before calling shouldRunPass().
++  bool isEnabled() const override { return !DisabledPasses.empty(); }
++
++  /// Set the set of optimizations to be disabled.
++  void setDisabled(StringRef Passes);
++
++  /// Compare the pass names to check if it should be disabled
++  bool comparePassNames(const StringRef &Name);
++
++  /// Checks the disables opts to determine if the specified pass should run.
++  bool checkPass(const StringRef PassName, const StringRef TargetDesc);
++
++private:
++  std::set<std::string> DisabledPasses = {};
++  int PassNum = 0;
++};
++
+ /// Singleton instance of the OptBisect class, so multiple pass managers don't
+ /// need to coordinate their uses of OptBisect.
+ OptPassGate &getGlobalPassGate();
+diff --git a/llvm/lib/IR/OptBisect.cpp b/llvm/lib/IR/OptBisect.cpp
+index 559b19944536..47e319241b5a 100644
+--- a/llvm/lib/IR/OptBisect.cpp
++++ b/llvm/lib/IR/OptBisect.cpp
+@@ -1,4 +1,4 @@
+-//===- llvm/IR/OptBisect/Bisect.cpp - LLVM Bisect support -----------------===//
++
+ //
+ // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+ // See https://llvm.org/LICENSE.txt for license information.
+@@ -57,4 +57,73 @@ bool OptBisect::shouldRunPass(const StringRef PassName,
+
+ const int OptBisect::Disabled;
+
+-OptPassGate &llvm::getGlobalPassGate() { return getOptBisector(); }
++static OptDisable &getOptDisabler() {
++  static OptDisable OptDisabler;
++  return OptDisabler;
++}
++
++static cl::opt<std::string>
++    OptDisablePass("opt-disable", cl::Hidden, cl::init(""), cl::Optional,
++                   cl::cb<void, std::string>([](std::string Passes) {
++                     getOptDisabler().setDisabled(Passes);
++                   }),
++                   cl::desc("Optimization pass to disable"));
++
++static void printDisablePassMessage(const StringRef &Name, int PassNum,
++                             StringRef TargetDesc, bool Running) {
++  StringRef Status = Running ? "" : "NOT ";
++  errs() << "DISABLE: " << Status << "running pass "
++         << "(" << PassNum << ") " << Name << " on " << TargetDesc << "\n";
++}
++
++void OptDisable::setDisabled(StringRef Passes) {
++  size_t Pos = 0;
++  std::string Token;
++  std::string Delimiter(",");
++  std::string PassesStr = Passes.str();
++
++  while ((Pos = PassesStr.find(Delimiter)) != std::string::npos) {
++    Token = PassesStr.substr(0, Pos);
++    DisabledPasses.insert(Token);
++    PassesStr.erase(0, Pos + Delimiter.length());
++  }
++
++  if (!PassesStr.empty())
++    DisabledPasses.insert(PassesStr);
++}
++
++bool OptDisable::comparePassNames(const StringRef &Name) {
++  for (const std::string &Pass: DisabledPasses) {
++    bool found = true;
++    for (size_t i = 0; i < Pass.length(); i++) {
++      // ignore special characters in pass name
++      if (Name[i] == ' ' || Name[i] == '<' || Name[i] == '>' || Name[i] == '/' || Name[i] == '-')
++        continue;
++      if (Name[i] != Pass[i]) {
++        found = false;
++        break;
++      }
++    }
++    if (found)
++      return true;
++  };
++  return false;
++}
++
++bool OptDisable::shouldRunPass(const StringRef PassName,
++                               StringRef IRDescription) {
++  assert(isEnabled());
++
++  bool ShouldRun = comparePassNames(PassName) == 0;
++  PassNum += 1;
++
++  // printDisablePassMessage(PassName, PassNum, IRDescription, ShouldRun);
++  return ShouldRun;
++}
++
++OptPassGate &llvm::getGlobalPassGate() {
++  if (getOptDisabler().isEnabled())
++    return getOptDisabler();
++  else
++    return getOptBisector();
++}

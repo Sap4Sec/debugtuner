@@ -1,0 +1,13 @@
+diff --git a/examples/libssh_scp.c b/examples/libssh_scp.c
+index adb82ef0..07d45253 100644
+--- a/examples/libssh_scp.c
++++ b/examples/libssh_scp.c
+@@ -263,7 +263,7 @@ static int do_copy(struct location *src, struct location *dest, int recursive) {
+     int w, r;
+     char buffer[BUF_SIZE];
+     size_t total = 0;
+-    mode_t mode;
++    mode_t mode = 0;
+     char *filename = NULL;
+
+     /* recursive mode doesn't work yet */
