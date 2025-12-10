@@ -2,7 +2,7 @@
 
 NCORES=1
 
-while getopts "j:" opt; do
+while getopts ":j:" opt; do
     case $opt in
         j)
             NCORES=$OPTARG
@@ -15,4 +15,4 @@ while getopts "j:" opt; do
 done
 
 # build the docker image
-docker build --build-arg cpu_cores=$NCORES -t debugtuner-image .
+docker build --build-arg cpu_cores=$NCORES -t cristianassaiante/debugtuner:cgo26-ae .

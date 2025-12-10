@@ -2,15 +2,15 @@
 
 This repository contains the source code of DebugTuner, a framework for tuning compilers towards the generation of more debuggable programs with low performance overhead. The methodology behind the framework is described in the paper ``Towards Threading the Needle of Debuggable Optimized Binaries'', to appear in Proceedings of CGO 2026.
 
-We provide the framework source code, made of the entire suite for debug information quality measurements and compiler pipeline tuning, and the scripts and configuration files to run the performance evaluation on SPEC CPU 2017. We also provide a Docker setup to reproduce our evaluation environment (software-wise).
+We provide the framework source code, made of the entire test suite for debug information quality measurements and compiler pipeline tuning, and the scripts and configuration files to run the performance evaluation on SPEC CPU 2017. We also provide a Docker setup to reproduce our evaluation environment (software-wise).
 
-### Dependencies
+## Dependencies
 
 Here, we provide the set of dependencies, both software and hardware, that are required to successfully use DebugTuner. Note that software requirements are already satisfied if the docker image provided is used.
 
-#### Software
+### Software
 
-DebugTuner mostly uses python, thus it requires `python3` (minimum tested version being `3.8`). The only external library used is `pyelftools` (minimum tested version `0.32`).
+DebugTuner mostly uses python, thus it requires `python3` (minimum tested version: `3.8`). The only external library used is `pyelftools` (minimum tested version: `0.32`).
 
 A compiler toolchain is required (both `gcc/gdb` or `clang/lldb` are currently supported). The exact compiler versions used in the evaluation are available in the provided docker image (with the `clang` patch for disabling passes included).
 
@@ -20,53 +20,98 @@ All the versions of the programs included in the test suite are fixed via commit
 
 DebugTuner should work on most linux distributions, but the docker image is set to use `ubuntu20.04`.
 
-#### Hardware
+### Hardware
 
-DebugTuner must be executed on a x86_64 platform. The docker image required about `25GB` of storage. To run the full paper evaluation, at least `100GB` of additional free space is required. To run the minimal working example workload the additional space requirements are about `3GB`.
+DebugTuner must be executed on an x86_64 platform. The docker image requires about `7GB` of storage. To run the full paper evaluation, at least `100GB` of additional free space is needed. To run the minimal working example workload the additional space requirements are about `3GB`.
 
-The estimated timings we provide for the example to run are computed using 20 cores, as the build and traces extraction steps are fully parallelized.
+The estimated timings we provide for the example to run are computed using 20 cores, since the build and traces extraction steps are fully parallelized.
 
-DebugTuner has no stict RAM requirements, but to run the AutoFDO large workload experiments at least `32GB` are required as those use a RAM disk of `20GB`.
+DebugTuner has no strict RAM requirements, but to run the AutoFDO large workload experiments at least `32GB` are required as those use a RAM disk of `20GB`.
 
 The amount of cores that the framework pipeline utilizes is mostly customizable, but the SPEC CPU 2017 configuration file is constructed to be working with 20 physical cores, and the AutoFDO large workload is constructed to be working with 10 physical cores.
 
-
-### Setup
+## Setup
 
 Here, we provide the instruction to setup the environment to use DebugTuner.
 
-#### Setup with Docker
+### Setup with Docker
 
 To use DebugTuner with the provided docker image, the following commands are to be executed from the repository root directory:
 
-1. Build docker image (estimated running time: ~3h):
+1. Pull or build locally the docker image (estimated running time: ~3h):
     
-    `./build.sh -j <N>` 
+    `docker pull cristianassaiante/debugtuner:cgo26-ae`
 
-2. Create the docker container in detach mode:
-
-    `./run.sh`
-
-    If SPEC CPU 2017 is available, in order to run performance evaluation (including AutoFDO), the `run.sh` script needs to be updated to mount the SPEC directory and the `perf` binary.
-
-    ```
-    -v <spec-cpu-path>:/home/user/spec-cpu
-    -v $(which perf):/usr/bin/perf
-    ```
-
-3. Attach to the container:
-
-    `docker attach debugtuner-cont`
     or
-    `docker exec -it debugtuner-cont bash`
 
-By default, `dt-corpus-min` is initialized with the corpus used during evaluation.
+    `bash -e build.sh -j <N>`
 
-#### Setup without Docker
+To run the docker container, there are two possible options:
+
+- **Option A** (recommended)
+
+    2. Create the docker container in detach mode:
+
+        `bash -e run.sh`
+
+        If SPEC CPU 2017 is available, in order to run performance evaluation (including AutoFDO), the `run.sh` script needs to be updated to mount the SPEC directory, and perf should be installed (see [`perf` installation](#perf-installation) for post-build installation).
+
+        `-v <spec-cpu-path>:/home/user/spec-cpu`
+
+    3. Attach to the container:
+
+        `docker attach debugtuner-cont`
+        or
+        `docker exec -it debugtuner-cont bash`
+
+    By default, `dt-corpus-min` is initialized with the corpus used during evaluation.
+
+- **Option B** (more flexible, more manual effort)
+
+    2. Create the required directories and unzip the evaluation corpus
+
+        ``` bash
+        mkdir -p src/dt-targets src/dt-log src/dt-performance src/dt-corpus-cmin
+        tar -xzf eval-dataset/dt-corpus-min.tar.gz
+        ```
+
+        > **Note**: if the user wants to create a new corpus instead of relying on the evaluation dataset, add `src/dt-corpus-min` to the `mkdir` command and ignore the archive extraction.
+    
+    3. Run the docker container with custom configurations
+
+        ``` bash
+        docker run -it \
+            --name debugtuner-cont \
+            <custom docker options> \
+            -w $HOME \
+            -v "$HOME:$HOME" \
+            debugtuner-image:latest
+        ```
+
+        Differently from using the provided `run.sh`, this will mount the entire `$HOME` directory inside the docker, providing more flexibility if code changes and/or data management is required. 
+    
+    4. Attach to the container:
+
+        `docker attach debugtuner-cont`
+        or
+        `docker exec -it debugtuner-cont bash`
+
+#### Perf Installation
+
+We provide a script that installs `perf`, enabling its use within the provided Docker environment. After opening a shell inside the Docker container, run the following commands:
+
+```bash
+cd /home/user/misc
+uname -r # to get linux version
+# (note: the version should have the following format X.Y.Z, with ".Z" omitted if it is ".0")
+./install_perf.sh -v <host-linux-version>
+```
+
+### Setup without Docker
 
 To use DebugTuner without the provided docker image, all the installation commands from the [Dockerfile](Dockerfile) can be installed. Those are tested on `ubuntu20.04` but should be easy to adapt to arch or debian-based distributions.
 
-### Project Description
+## Project Description
 
 Here, we provide a detailed description of how this repository is structured and what is included in each directory, matching the methodology description provided in the paper.
 
@@ -89,7 +134,7 @@ Here, we provide a detailed description of how this repository is structured and
         - SPEC CPU 2017 configuration ([debugtuner-spec.cfg](src/compiler-tuning/debugtuner-spec.cfg)): SPEC CPU 2017 configuration file to run the experiments done in the paper. It should be moved into the [spec-cpu/configs]() directory if the benchmarks are available.
         - SPEC CPU 2017 runner template for gcc ([run_spec_template_gcc.sh](src/compiler-tuning/run_spec_template_gcc.sh)): SPEC CPU 2017 bash script template for gcc.
         - SPEC CPU 2017 runner template for clang ([run_spec_template_clang.sh](src/compiler-tuning/run_spec_template_clang.sh)): SPEC CPU 2017 bash script template for clang.
-        - AutoFDO large workload ([large-workload](src/compiler-tuning/large-workloads/)): This directory contains all the scripts used to run the AutoFDO experiments using clang itself as target.
+        - AutoFDO large workload ([large-workload](src/compiler-tuning/large-workload/)): This directory contains all the scripts used to run the AutoFDO experiments using clang itself as target.
     - Common utilities ([src/utils](src/utils)):
         - Logger ([log.py](src/utils/log.py)): A simple logger implementation to facilitate debug outputs.
         - Runner ([run.py](src/utils/run.py)): A simple runner implementation to easily run commands and extract the output.
@@ -97,12 +142,15 @@ Here, we provide a detailed description of how this repository is structured and
     - Post-processing scripts ([src/post-processing](src/post-processing/)): This directory contains script to prettify the results of a DebugTuner run.
         - Prettify rankings ([prettify_ranks.py](src/post-processing/prettify_ranks.py)): Script to print a table with the rankings obtained.
         - Prettify configurations debug information metrics ([prettify_configs.py](src/post-processing/prettify_configs.py)): Script to pretty print the results obtained from debug information evaluation of custom configurations.
-        - Print configurations flag ([get_configs_cmd.py](src/post-processing/get_configs_flag.py)): Script to print the exact command line to test the ranking based configurations on the selected programs.
-    - Miscellaneous scripts: ([src/misc](src/misc)):
+        - Print configurations flag ([get_configs_cmd.py](src/post-processing/get_configs_cmd.py)): Script to print the exact command line to test the ranking based configurations on the selected programs.
+    - Miscellaneous scripts used in DebugTuner: ([src/misc](src/misc)):
         - Clang pass names converter ([clang_pass_names.py](src/misc/clang_pass_names.py)): Script to convert pass names used in JSON results to argument names for pass disabling flag.
         - Fuzz targets main ([fuzzer-main.c](src/misc/fuzzer-main.c)): Driver for fuzz targets, it executes all the input from the corpus in a single execution.
-        - Disable opts patch ([disable-opts.patch](src/misc/disable-opts.patch)): LLVM patch to add `-opt-disable` flag. This is the version used for paper evaluation, if a more recent clang version is targeted, the flag may be available by default, since it has been merged (commit id: [81eb7de](https://github.com/llvm/llvm-project/commit/81eb7defa23dcf48a8e51391543eb210df232440))
         - LibSSH patch ([libssh.patch](src/misc/libssh.patch)): A small patch for building libssh in our environment.
+
+- Miscellaneous scripts ([misc/](misc/)):
+    - Disable opts patch ([disable-opts.patch](misc/disable-opts.patch)): LLVM patch to add `-opt-disable` flag. This is the version used for paper evaluation, if a more recent clang version is targeted, the flag may be available by default, since it has been merged (commit id: [81eb7de](https://github.com/llvm/llvm-project/commit/81eb7defa23dcf48a8e51391543eb210df232440))
+    - Perf installation script ([install_perf.sh](misc/install_perf.sh)): Script for installing perf inside the docker, using the kernel version of the host.
 
 - Evaluation dataset ([eval-dataset](eval-dataset)): This directory contains the minimized corpus to reproduce the paper results and the scripts to run the SPEC CPU 2017 evaluation.
 
@@ -117,13 +165,13 @@ The framework utilizes several directories to store binaries, corpus, results an
 
 All the directories names are customizable with specific flags for [debugtuner](src/debugtuner.py).
 
-### How to Run
+## How to Run
 
 Here, we provide instruction to run the framework. In particular, we describe how to run a minimal working example for testing DebugTuner functionalities.
 
-Instead of testing the full set of (13) programs, it only uses a subset made of 2 programs (`wasm3` and `zydis`), selected to reduce the high execution time time of larger programs (days). Running the framework over the full test suite is only a matter of removing a flag (`--minimal`). 
+Instead of testing the full set of (13) programs, it only uses a subset made of 2 programs (`wasm3` and `zydis`), selected to reduce the high execution time of larger programs (days). Running the framework over the full test suite is only a matter of removing a flag (`--minimal`). 
 
-#### DebugTuner Execution
+### DebugTuner Execution
 
 To run the minimal working example, there are two options available, depending on whether the provided dataset is used or a new one is generated.
 
@@ -137,37 +185,35 @@ To run the minimal working example, there are two options available, depending o
 
     `python3 debugtuner.py --minimal --proc N --all-stages --compiler <gcc/clang>`
 
-> *Notes for reviewers*: we suggest to use the provided dataset, since the minimization stage is very time consuming.
+### Performance Evaluation
 
-#### Performance Evaluation
+If the DebugTuner pipeline has run successfully (performance stage included), then in the [dt-performance]() directory there will the scripts to be run to perform the performance evaluation.
 
-If the DebugTuner pipeline has run successfully (performance stage included), then in the [dt-performance]() directory there will the the scripts to be run to perform the performance evaluation.
-
-> Note for reviewers: we do not request the evaluation of the performance experiments. But for those who have access to SPEC CPU 2017 and want to try to replicate the results, the config file is set to use 20 physical cores.
-
-The SPEC CPU 2017 needs to be available in order to do so and the [config file](src/compiler-tuning/debugtuner-spec.cfg) needs to be placed in the configs directory. If the requirements are satisfied, the bash script generated will run automatically run the entire set of performance benchmarks as done in the paper evaluation.
+The SPEC CPU 2017 needs to be available in order to do so and the [config file](src/compiler-tuning/debugtuner-spec.cfg) needs to be placed in the configs directory. If the requirements are satisfied, the bash script generated will automatically run the entire set of performance benchmarks as done in the paper evaluation.
 
 The following command can be used to run the experiments.
 
-```
+``` bash
 cd dt-performance
 ./run_spec_{gcc/clang}.sh
 ```
 
 When using clang as compiler, the AutoFDO results are computed too. In fact, in the SPEC CPU 2017 reports, the `base` configuration will refer to performance results of the configurations used to build directly and the `peak` configuration will refer to performance results obtained using our AutoFDO setup.
 
-#### AutoFDO Large Workload Experiments
+### AutoFDO Large Workload Experiments
 
 If the DebugTuner pipeline has run successfully (performance stage included), then in the [dt-performance/large-workloads]() directory there will the scripts to be run to perform the performance evaluation of AutoFDO using clang itself as target. The setup is the exact same described in the paper.
 
 The following commands can be used to run the experiments:
 
-```
+``` bash
 cd dt-performance/large-workloads
 ./run_clang.sh
 ```
 
-#### Feedback Loop
+> **Note**: to reduce the Docker image size, the LLVM source code is not included. However, this source code is required for running the large workload experiments. To restore it, simply clone the LLVM repository again using the same commands provided in the Dockerfile. This will ensure that the scripts work correctly.
+
+### Feedback Loop
 
 In the paper, we describe how the framework (in particular the debug information quality component) is re-used to evaluate the constructed custom configurations. The following command produces the command line to run debugtuner again using the configurations obtained from rankings.
 
@@ -175,7 +221,7 @@ In the paper, we describe how the framework (in particular the debug information
 
 Running the output command will run DebugTuner again, obtaining debug information metrics for the custom configurations.
 
-#### Post-processing 
+### Post-processing 
 
 All the results from the execution can be parsed using the scripts provided in [src/post-processing](src/post-processing).
 
@@ -187,7 +233,9 @@ This script is responsible for printing a table with all the constructed ranking
 
 This script has to be run after the feedback loop is executed, it prints a table with the debug information availability computed on the custom configurations.
 
-### Reusability
+## Reusability
+
+### Add More Programs to Test Suite
 
 Here, we describe what steps should be taken to extend the test suite used in the evaluation of DebugTuner.
 
@@ -197,7 +245,7 @@ The first step is to update the [build.sh](src/build-dataset/build.sh) script, t
 
 For example, this is the function for building `wasm3`:
 
-```
+``` bash
 function wasm3() {
     BASE=$PROJECTS_DIR/wasm3
 
@@ -229,7 +277,9 @@ function wasm3() {
 }
 ```
 
-> Note, if OSS-Fuzz targets are to be added, most of the build code can be found in the OSS-Fuzz repository.
+If OSS-Fuzz targets are to be added, most of the build code can be found in the OSS-Fuzz repository within the directory related to the target program. When using these targets, all subsequent pipeline stages, such as input corpus generation, will function automatically without additional manual configuration.
+
+If the new targets do not come from OSS-Fuzz, you must also provide an input corpus. Place the corpus in the [dt-corpus-min]() directory if it is already minimized, or in [dt-corpus-cmin]() if it still requires trace-based minimization. Note that the current setup supports `afl-cmin` minimization only for OSS-Fuzz targets.
 
 #### Update Config File
 
@@ -243,10 +293,31 @@ For example, these are the config entries for `wasm3`:
 
 The compilation flags, if not explicited in the build script, should be extracted from the build configurations in the repository of the selected program. At the moment, our parser requires this manual step to work correctly since it compiles the single C file to be analyzed and pre-processing variables provided via command line can change the shape of the parser AST.
 
-### Results Reproduction: Dataset Availability
+### Test Multiple Compiler Versions
+
+DebugTuner supports testing with multiple compiler versions, whether they are installed system-wide or built from source.  
+If a different compiler version is installed on the system, simply add the following flag to the DebugTuner commands described in the [instructions](#how-to-run): `--cc-version <version>`.  
+If the compiler was built from source but not installed, include an additional argument specifying the path to the build directory that contains the compiler binary: `--compiler-path <path>`.
+
+> **Note:** For older Clang versions, the [disabled-opts.patch](misc/disable-opts.patch) file may need to be updated. For newer versions, this patch is likely unnecessary, as the flag has already been merged upstream.
+
+## Results Reproduction: Dataset Availability
 
 To reproduce the results obtained in the paper regarding both debug information quality and performance, we provide both the [minimized corpus](eval-dataset/dt-corpus-min.tar.gz) used and the exact [performance testing scripts](eval-dataset/perf-scripts) used for the paper evaluation.
 
-### Troubleshooting
+## Troubleshooting
 
-We are aware of an issues sometimes occurring while building the docker image. Due to the large size of the gcc and LLVM repositories, it may hang if connection is unstable. Restarting the build process upon error should solve the issue.
+### Docker Image Build
+
+We are aware of an issue sometimes occurring while building the docker image. Due to the large size of the gcc and LLVM repositories, it may hang if connection is unstable. Restarting the build process upon error should solve the issue.
+
+### Debug Traces Extraction
+
+Thanks to reviewers, we are aware of an issue sometimes occurring while running the debugger for debug traces extraction with multiple cores. Unfortunately, we were not able to successfully reproduce the error on our machines, but running the pipeline using less cores, or more drastically a single one, should avoid any issue.
+
+### Logs Inspection
+
+If errors continue to occur during DebugTuner execution, check the contents of the [dt-log]() directory. It contains a log file for each stage executed on every tested program.
+Each log file follows the naming format: `<stage-name>-<compiler>-<timestamp>.log`.
+
+For more detailed output, you can add the --debug option to the command. This causes each stage to print additional diagnostic information that may help with troubleshooting.

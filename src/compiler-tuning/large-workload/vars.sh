@@ -4,7 +4,9 @@ set -eu
 
 BASE=$(pwd)
 
+# NOTE: update this path accordingly
 PATH_TO_SOURCES=/home/user
+
 PATH_TO_BINARIES=$BASE/binaries
 PATH_TO_PROFILES=$BASE/profiles
 PATH_TO_RESULTS=$BASE/results

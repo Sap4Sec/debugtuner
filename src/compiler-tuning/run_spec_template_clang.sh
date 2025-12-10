@@ -2,9 +2,10 @@
 
 SPEC_DIRECTORY=/home/user/spec-cpu
 
+# NOTE: update this path accordingly
 LLVM_SOURCES_BASE=/usr/local
 GCC_SOURCES_BASE=/usr/local
-AUTOFD_SOURCES_BASE=/home/user/autofdo
+AUTOFD_SOURCES_BASE=/usr/bin
 
 BASE=$SPEC_DIRECTORY/experimental-results
 RESULTS_BAG=PERFORMANCE_DIR_TEMPLATE/results-gcc

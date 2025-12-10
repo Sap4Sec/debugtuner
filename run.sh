@@ -14,10 +14,10 @@ docker run --name debugtuner-cont \
     -v ${PWD}/dt-performance:/home/user/debugtuner/dt-performance \
     -v ${PWD}/dt-corpus-min:/home/user/debugtuner/dt-corpus-min \
     -v ${PWD}/dt-corpus-cmin:/home/user/debugtuner/dt-corpus-cmin \
-    -it -d debugtuner-image
+    --privileged \
+    -it -d cristianassaiante/debugtuner:cgo26-ae
 
 # NOTE: to also run performance evaluation (including AutoFDO)
-# the spec-cpu directory and the perf binary needs to be mounted as well
+# the spec-cpu directory needs to be mounted as well
 
 # -v <spec-cpu-path>:/home/user/spec-cpu
-# -v $(which perf):/usr/bin/perf
