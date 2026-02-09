@@ -321,3 +321,12 @@ If errors continue to occur during DebugTuner execution, check the contents of t
 Each log file follows the naming format: `<stage-name>-<compiler>-<timestamp>.log`.
 
 For more detailed output, you can add the --debug option to the command. This causes each stage to print additional diagnostic information that may help with troubleshooting.
+
+## Credits
+
+- Cristian Assaiante
+- Simone Di Biasio
+- Snehasish Kumar
+- Giuseppe Antonio Di Luna
+- Daniele Cono D'Elia
+- Leonardo Querzoni
