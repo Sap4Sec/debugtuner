@@ -55,7 +55,6 @@ function run() {
 
     export SPEC_AUTOFDO_VERSION=$AUTOFDO_SOURCES_BASE/autofdo/build
     export SPEC_LABEL="$1"
-    export SPEC_RUN_AUTOFDO=1
 
     # 1. cleanup spec directories
     ./bin/runcpu --action scrub --config=debugtuner-spec > $LOGS_DIR/runcpu-scrub.log
@@ -71,9 +70,6 @@ function run() {
     # 3. save results
     mv result/* $RESULTS_DIR/.
     rmdir result
-
-    unset SPEC_RUN_AUTOFDO
-    unset SPEC_RUN_SOURCE_INST
 }
 
 function run_clang() {

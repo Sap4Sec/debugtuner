@@ -47,11 +47,10 @@ function run() {
     export SPEC_CC=gcc
     export SPEC_CXX=g++
     export SPEC_TUNE="base"
-    export SPEC_IS=1
+    export SPEC_IS_GCC=1
 
     export SPEC_AUTOFDO_VERSION=$LLVM_SOURCES_BASE/autofdo-$AUTOFDO_VERSION/build
     export SPEC_LABEL="$1"
-    export SPEC_RUN_AUTOFDO=1
 
     # 1. cleanup spec directories
     ./bin/runcpu --action scrub --config=debugtuner-spec > $LOGS_DIR/runcpu-scrub.log
@@ -68,9 +67,7 @@ function run() {
     mv result/* $RESULTS_DIR/.
     rmdir result
 
-    unset SPEC_RUN_AUTOFDO
-    unset SPEC_RUN_SOURCE_INST
-    unset SPEC_IS
+    unset SPEC_IS_GCC
 }
 
 function run_gcc() {

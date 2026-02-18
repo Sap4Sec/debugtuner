@@ -6,12 +6,12 @@ RUNS=1
 EXISTING=""
 STANDARD=false
 
-EVAL_CONFIGURATIONS=(
-"O3-std:-O3"
-"O3-d3:-O3 -mllvm -opt-disable=Machine_code_sinking,JumpThreadingPass,Loop_Strength_Reduction"
-"O3-d5:-O3 -mllvm -opt-disable=Machine_code_sinking,JumpThreadingPass,Loop_Strength_Reduction,SimplifyCFGPass,Branch_Probability_Basic_Block_Placement"
-"O3-d7:-O3 -mllvm -opt-disable=Machine_code_sinking,JumpThreadingPass,Loop_Strength_Reduction,SimplifyCFGPass,Branch_Probability_Basic_Block_Placement,DSEPass,LoopUnrollPass"
-"O3-d9:-O3 -mllvm -opt-disable=Machine_code_sinking,JumpThreadingPass,Loop_Strength_Reduction,SimplifyCFGPass,Branch_Probability_Basic_Block_Placement,DSEPass,LoopUnrollPass,Control_Flow_Optimizer,SROAPass"
+declare -A EVAL_CONFIGURATIONS=(
+[O3-std]="-O3"
+[O3-d3]="-O3 -mllvm -opt-disable=Machine_code_sinking,JumpThreadingPass,Loop_Strength_Reduction"
+[O3-d5]="-O3 -mllvm -opt-disable=Machine_code_sinking,JumpThreadingPass,Loop_Strength_Reduction,SimplifyCFGPass,Banch_Probability_Basic_Block_Placement"
+[O3-d7"]="-O3 -mllvm -opt-disable=Machine_code_sinking,JumpThreadingPass,Loop_Strength_Reduction,SimplifyCFGPass,Banch_Probability_Basic_Block_Placement,DSEPass,LoopUnrollPass"
+[O3-d9]="-O3 -mllvm -opt-disable=Machine_code_sinking,JumpThreadingPass,Loop_Strength_Reduction,SimplifyCFGPass,Branch_Probability_Basic_Block_Placement,DSEPass,LoopUnrollPass,Control_Flow_Optimizer,SROAPass"
 )
 
 # Parse command line arguments
@@ -33,9 +33,8 @@ while getopts "r:eo" opt; do
     esac
 done
 
-for entry in "${EVAL_CONFIGURATIONS[@]}" ; do
-        name="${entry%%:*}"
-        config="${entry##*:}"
+for name in "${!EVAL_CONFIGURATIONS[@]}"; do
+        config="${EVAL_CONFIGURATIONS[$name]}"
 
         for ((run=1; run<=$RUNS; run++)); do
                 if [ $run = 1 ]; then

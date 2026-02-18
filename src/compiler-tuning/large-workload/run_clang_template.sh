@@ -6,7 +6,7 @@ RUNS=1
 EXISTING=""
 STANDARD=false
 
-EVAL_CONFIGURATIONS=(
+declare -A EVAL_CONFIGURATIONS=(
 CONFIGURATIONS_TEMPLATE
 )
 
@@ -29,9 +29,8 @@ while getopts "r:eo" opt; do
     esac
 done
 
-for entry in "${EVAL_CONFIGURATIONS[@]}" ; do
-        name="${entry%%:*}"
-        config="${entry##*:}"
+for name in "${!EVAL_CONFIGURATIONS[@]}"; do
+        config="${EVAL_CONFIGURATIONS[$name]}"
 
         for ((run=1; run<=$RUNS; run++)); do
                 if [ $run = 1 ]; then

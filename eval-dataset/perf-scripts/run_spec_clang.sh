@@ -26,21 +26,21 @@ while getopts "f" opt; do
 done
 
 declare -A EVAL_CONFIGURATIONS=(
-["O1-std"]="-O1"
-["O1-d3"]="-O1 -mllvm -opt-disable=SimplifyCFGPass,Machine_code_sinking,InstCombinePass"
-["O1-d5"]="-O1 -mllvm -opt-disable=SimplifyCFGPass,Machine_code_sinking,InstCombinePass,Control_Flow_Optimizer,EarlyCSEPass"
-["O1-d7"]="-O1 -mllvm -opt-disable=SimplifyCFGPass,Machine_code_sinking,InstCombinePass,Control_Flow_Optimizer,EarlyCSEPass,Loop_Strength_Reduction,Branch_Probability_Basic_Block_Placement"
-["O1-d9"]="-O1 -mllvm -opt-disable=SimplifyCFGPass,Machine_code_sinking,InstCombinePass,Control_Flow_Optimizer,EarlyCSEPass,Loop_Strength_Reduction,Branch_Probability_Basic_Block_Placement,LoopRotatePass,SROAPass"
-["O2-std"]="-O2"
-["O2-d3"]="-O2 -mllvm -opt-disable=JumpThreadingPass,Machine_code_sinking,SimplifyCFGPass"
-["O2-d5"]="-O2 -mllvm -opt-disable=JumpThreadingPass,Machine_code_sinking,SimplifyCFGPass,Loop_Strength_Reduction,Control_Flow_Optimizer"
-["O2-d7"]="-O2 -mllvm -opt-disable=JumpThreadingPass,Machine_code_sinking,SimplifyCFGPass,Loop_Strength_Reduction,Control_Flow_Optimizer,DSEPass,GVNPass"
-["O2-d9"]="-O2 -mllvm -opt-disable=JumpThreadingPass,Machine_code_sinking,SimplifyCFGPass,Loop_Strength_Reduction,Control_Flow_Optimizer,DSEPass,GVNPass,LoopRotatePass,SROAPass"
-["O3-std"]="-O3"
-["O3-d3"]="-O3 -mllvm -opt-disable=Machine_code_sinking,JumpThreadingPass,Loop_Strength_Reduction"
-["O3-d5"]="-O3 -mllvm -opt-disable=Machine_code_sinking,JumpThreadingPass,Loop_Strength_Reduction,SimplifyCFGPass,Branch_Probability_Basic_Block_Placement"
-["O3-d7"]="-O3 -mllvm -opt-disable=Machine_code_sinking,JumpThreadingPass,Loop_Strength_Reduction,SimplifyCFGPass,Branch_Probability_Basic_Block_Placement,DSEPass,LoopUnrollPass"
-["O3-d9"]="-O3 -mllvm -opt-disable=Machine_code_sinking,JumpThreadingPass,Loop_Strength_Reduction,SimplifyCFGPass,Branch_Probability_Basic_Block_Placement,DSEPass,LoopUnrollPass,Control_Flow_Optimizer,SROAPass"
+[O1-std]="-O1"
+[O1-d3]="-O1 -mllvm -opt-disable=SimplifyCFGPass,Machine_code_sinking,InstCombinePass"
+[O1-d5]="-O1 -mllvm -opt-disable=SimplifyCFGPass,Machine_code_sinking,InstCombinePass,Control_Flow_Optimizer,EarlyCSEPass"
+[O1-d7]="-O1 -mllvm -opt-disable=SimplifyCFGPass,Machine_code_sinking,InstCombinePass,Control_Flow_Optimizer,EarlyCSEPass,Loop_Strength_Reduction,Branch_Probability_Basic_Block_Placement"
+[O1-d9]="-O1 -mllvm -opt-disable=SimplifyCFGPass,Machine_code_sinking,InstCombinePass,Control_Flow_Optimizer,EarlyCSEPass,Loop_Strength_Reduction,Branch_Probability_Basic_Block_Placement,LoopRotatePass,SROAPass"
+[O2-std]="-O2"
+[O2-d3]="-O2 -mllvm -opt-disable=JumpThreadingPass,Machine_code_sinking,SimplifyCFGPass"
+[O2-d5]="-O2 -mllvm -opt-disable=JumpThreadingPass,Machine_code_sinking,SimplifyCFGPass,Loop_Strength_Reduction,Control_Flow_Optimizer"
+[O2-d7]="-O2 -mllvm -opt-disable=JumpThreadingPass,Machine_code_sinking,SimplifyCFGPass,Loop_Strength_Reduction,Control_Flow_Optimizer,DSEPass,GVNPass"
+[O2-d9]="-O2 -mllvm -opt-disable=JumpThreadingPass,Machine_code_sinking,SimplifyCFGPass,Loop_Strength_Reduction,Control_Flow_Optimizer,DSEPass,GVNPass,LoopRotatePass,SROAPass"
+[O3-std]="-O3"
+[O3-d3]="-O3 -mllvm -opt-disable=Machine_code_sinking,JumpThreadingPass,Loop_Strength_Reduction"
+[O3-d5]="-O3 -mllvm -opt-disable=Machine_code_sinking,JumpThreadingPass,Loop_Strength_Reduction,SimplifyCFGPass,Branch_Probability_Basic_Block_Placement"
+[O3-d7]="-O3 -mllvm -opt-disable=Machine_code_sinking,JumpThreadingPass,Loop_Strength_Reduction,SimplifyCFGPass,Branch_Probability_Basic_Block_Placement,DSEPass,LoopUnrollPass"
+[O3-d9]="-O3 -mllvm -opt-disable=Machine_code_sinking,JumpThreadingPass,Loop_Strength_Reduction,SimplifyCFGPass,Branch_Probability_Basic_Block_Placement,DSEPass,LoopUnrollPass,Control_Flow_Optimizer,SROAPass"
 )
 
 function run() {

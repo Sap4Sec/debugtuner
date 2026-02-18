@@ -37,14 +37,14 @@ def main(args):
                 configs = " ".join(list(map(lambda x: f"-fno-{x[0]}", ranks[:count])))
                 if name != "std":
                     configs = f" {configs}"
-                configurations.append(f'["O{opt_level}-{name}"]="-O{opt_level}{configs}"')
+                configurations.append(f'[O{opt_level}-{name}]="-O{opt_level}{configs}"')
         else:
             ranks = list(filter(lambda x: x[0] != "inlinerpass", rankings[opt_level]))
             for name, count in [("std", 0), ("d3", 3), ("d5", 5), ("d7", 7), ("d9", 9)]:
                 configs = ",".join(list(map(lambda x: get_pass_arg(x[0]), ranks[:count])))
                 if name != "std":
                     configs = f" -mllvm -opt-disable={configs}"
-                configurations.append(f'["O{opt_level}-{name}"]="-O{opt_level}{configs}"')
+                configurations.append(f'[O{opt_level}-{name}]="-O{opt_level}{configs}"')
 
     template = template.replace("CONFIGURATIONS_TEMPLATE", "\n".join(configurations))
 
@@ -74,7 +74,7 @@ def main(args):
                 configs = ",".join(list(map(lambda x: get_pass_arg(x[0]), ranks[:count])))
                 if name != "std":
                     configs = f" -mllvm -opt-disable={configs}"
-                configurations.append(f'"O{opt_level}-{name}:-O{opt_level}{configs}"')
+                configurations.append(f'[O{opt_level}-{name}]="-O{opt_level}{configs}"')
 
         template = template.replace("CONFIGURATIONS_TEMPLATE", "\n".join(configurations))
         with open(f"{large_dir}/run_clang.sh", "w") as f:
