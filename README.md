@@ -330,3 +330,21 @@ For more detailed output, you can add the --debug option to the command. This ca
 - Giuseppe Antonio Di Luna
 - Daniele Cono D'Elia
 - Leonardo Querzoni
+
+## Cite
+
+To reference our work, we would be grateful if you could use the following BibTeX code:
+
+```
+@INPROCEEDINGS{11395216,
+  author={Assaiante, Cristian and Biasio, Simone Di and Kumar, Snehasish and Di Luna, Giuseppe Antonio and Cono D’Elia, Daniele and Querzoni, Leonardo},
+  booktitle={2026 IEEE/ACM International Symposium on Code Generation and Optimization (CGO)}, 
+  title={Towards Threading the Needle of Debuggable Optimized Binaries}, 
+  year={2026},
+  volume={},
+  number={},
+  pages={711-725},
+  keywords={Measurement;Productivity;Codes;Optimizing compilers;Pipelines;Computer bugs;Debugging;Needles;Optimization;Information integrity;Debugging;Optimizing compilers;Profiling},
+  doi={10.1109/CGO68049.2026.11395216}
+}
+```
