@@ -1,6 +1,6 @@
 # debugtuner
 
-This repository contains the source code of DebugTuner, a framework for tuning compilers towards the generation of more debuggable programs with low performance overhead. The methodology behind the framework is described in the paper ``Towards Threading the Needle of Debuggable Optimized Binaries'', to appear in Proceedings of CGO 2026.
+This repository contains the source code of DebugTuner, a framework for tuning compilers towards the generation of more debuggable programs with low performance overhead. The methodology behind the framework is described in the paper (``Towards Threading the Needle of Debuggable Optimized Binaries'')[https://ieeexplore.ieee.org/document/11395216], to appear in Proceedings of CGO 2026.
 
 We provide the framework source code, made of the entire test suite for debug information quality measurements and compiler pipeline tuning, and the scripts and configuration files to run the performance evaluation on SPEC CPU 2017. We also provide a Docker setup to reproduce our evaluation environment (software-wise).
 
