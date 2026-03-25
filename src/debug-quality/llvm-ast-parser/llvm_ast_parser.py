@@ -99,7 +99,7 @@ def parse_ast(c: Path, dir: Path, out: Path = None, inc: List[Path] = [], prep: 
         hdr = parse_includes(process.stderr.decode().split("\n"))
         print(process.stderr.decode())
         Logger.log().error(f"Unable to generate AST for {c}: missing {hdr}")
-        exit(-1)
+        return None
 
     ast = AST(process.stdout.decode())
 

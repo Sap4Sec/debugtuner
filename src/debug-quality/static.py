@@ -103,7 +103,14 @@ def polish_traces(traces, compiler, config, pickle_dir: Path, project_dir: Path)
                         )
                     else:
                         source_ast = ap.ast.AST.load(ast_pickle.as_posix())
+
+                    if source_ast is None:
+                        continue
+
                     source_asts[source] = source_ast
+
+                if source not in source_asts:
+                    continue
 
                 source_ast = source_asts[source]
                 for line in traces["traces"][compiler][opt_level][disabled_opt]["variables"]["main"][source]:
