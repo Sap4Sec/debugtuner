@@ -4,6 +4,8 @@ This repository contains the source code of DebugTuner, a framework for tuning c
 
 We provide the framework source code, made of the entire test suite for debug information quality measurements and compiler pipeline tuning, and the scripts and configuration files to run the performance evaluation on SPEC CPU 2017. We also provide a Docker setup to reproduce our evaluation environment (software-wise).
 
+**Note**: the `main` branch of this repository is always up to date with the latest DebugTuner version, which may differ from what was used in the paper evaluation. To acces the code used for the paper either use the [Zenodo DOI](https://doi.org/10.5281/zenodo.17550185) or refer to the `artifact-evaluated` branch.
+
 ## Dependencies
 
 Here, we provide the set of dependencies, both software and hardware, that are required to successfully use DebugTuner. Note that software requirements are already satisfied if the docker image provided is used.
