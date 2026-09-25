@@ -66,6 +66,10 @@ break command add %d
     frame select
     frame var
 
+    script result = lldb.SBCommandReturnObject()
+    script lldb.debugger.GetCommandInterpreter().HandleCommand("frame var", result)
+    script print(result.GetOutput(), end="")
+
     script locals = {}
     script for var in list(lldb.frame.arguments) + list(lldb.frame.variables): locals[var.name] = var.type.is_pointer
     script import json; print(f"[+] Locals type analysis: {json.dumps(locals)}")
