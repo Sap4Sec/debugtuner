@@ -64,7 +64,6 @@ quit
 LLDB_BP_TEMPLATE = """%s set --file %s --line %d
 break command add %d
     frame select
-    frame var
 
     script result = lldb.SBCommandReturnObject()
     script lldb.debugger.GetCommandInterpreter().HandleCommand("frame var", result)
